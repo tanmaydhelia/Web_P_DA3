@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Login with React and Captcha</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+
+<body>
+    <div id="root"></div>
+    <script type="text/babel">
+        const React = window.React;
+        const ReactDOM = window.ReactDOM;
+        const useState = React.useState;
+        const useEffect = React.useEffect;
+
+        function Login() {
+            const [username, setUsername] = useState('');
+            const [password, setPassword] = useState('');
+            const [captchaValid, setCaptchaValid] = useState(false);
+
+            const handleSubmit = (event) => {
+                event.preventDefault();
+                if (captchaValid) {
+                    alert(`Username: ${username}, Password: ${password}`);
+                } else {
+                    alert('Please enter a valid captcha!');
+                }
+            };
+
+            return (
+                <div className="container">
+                    <h1>Login</h1>
+                    <form onSubmit={handleSubmit}>
+                        <div className="form-group">
+                            <label htmlFor="username">Username:</label>
+                            <input
+                                type="text"
+                                id="username"
+                                name="username"
+                                placeholder="Enter Username"
+                                value={username}
+                                onChange={(e) => setUsername(e.target.value)}
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label htmlFor="password">Password:</label>
+                            <input
+                                type="password"
+                                id="password"
+                                name="password"
+                                placeholder="Enter Password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                            />
+                        </div>
+                        <Captcha setCaptchaValid={setCaptchaValid} />
+                        <button type="submit">Login</button>
+                    </form>
+                </div>
+            );
+        }
+
+        function Captcha({ setCaptchaValid }) {
+            const [captchaText, setCaptchaText] = useState('');
+            const [userInput, setUserInput] = useState('');
+
+            const characters = '?/{]}[()&%$#@!ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+
+            useEffect(() => {
+                generateCaptcha();
+            }, []);
+
+            const generateCaptcha = () => {
+                let captcha = '';
+                for (let i = 0; i < 6; i++) {
+                    captcha += characters.charAt(Math.floor(Math.random() * characters.length));
+                }
+                setCaptchaText(captcha);
+            };
+
+            const handleUserInput = (event) => {
+                setUserInput(event.target.value);
+            };
+
+            const validateCaptcha = (event) => {
+                event.preventDefault();
+                if (userInput === captchaText) {
+                    setCaptchaValid(true);
+                    console.log('Captcha Valid!');
+                } else {
+                    alert('Invalid Captcha!');
+                    generateCaptcha();
+                    setUserInput('');
+                    setCaptchaValid(false);
+                }
+            };
+
+            return (
+                <div className="captcha">
+                    <div id="captcha-text">{captchaText}</div>
+                    <div><button onClick={generateCaptcha}>Regenerate</button></div>
+                    <input
+                        type="text"
+                        id="captcha-input"
+                        placeholder="Enter Captcha"
+                        value={userInput}
+                        onChange={handleUserInput}
+                    />
+                    <div><button onClick={validateCaptcha}>Validate Captcha</button></div>
+                </div>
+            );
+        }
+
+        ReactDOM.render(<Login />, document.getElementById('root'));
+
+    </script>
+</body>
+
+</html>
